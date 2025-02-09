@@ -5,6 +5,7 @@ const catchAsync = require("../utils/catchAsync");
 const response = require("../config/response");
 const { userService } = require("../services");
 const unlinkImages = require("../common/unlinkImage");
+const { User } = require("../models");
 
 const createUser = catchAsync(async (req, res) => {
   const user = await userService.createUser(req.body);
@@ -21,9 +22,16 @@ const createUser = catchAsync(async (req, res) => {
 });
 
 
+ 
 const getUsers = catchAsync(async (req, res) => {
   const filter = pick(req.query, ["fullName", "role", "email"]);
   const options = pick(req.query, ["sortBy", "limit", "page"]);
+  
+  // Add default sorting if not provided
+  if (!options.sortBy) {
+    options.sortBy = '-createdAt'; // Sort by createdAt descending (latest first)
+  }
+
   const result = await userService.queryUsers(filter, options);
   res
     .status(httpStatus.OK)
@@ -36,6 +44,27 @@ const getUsers = catchAsync(async (req, res) => {
       })
     );
 });
+
+
+const totalStatus = catchAsync(async( req, res) => {
+    const users = await User.countDocuments({role: "user"})
+
+    const landLord = await User.countDocuments({role: "landlord"})
+     
+    const data = {
+      users,
+      landLord
+    }
+
+    res
+    .status(httpStatus.OK).json(response({
+      message: "total status get successfully",
+      statusCode: httpStatus.OK,
+      data
+    }))
+})
+
+
 
 const logedUser = catchAsync(async (req, res) => {
   const userId = req.user.id
@@ -123,5 +152,6 @@ module.exports = {
   getUser,
   updateUser,
   deleteUser,
-  logedUser
+  logedUser,
+  totalStatus
 };

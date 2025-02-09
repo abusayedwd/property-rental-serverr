@@ -39,7 +39,32 @@ const getAllProperties = async (filter, options) => {
 };
 
 
-const getPromotedProperties = async (filter, options) => {
+const getPromotedARentProperties = async (filter, options) => {
+  const query = { isPromotion: true }; // Ensure only promoted properties are fetched
+
+  for (const key of Object.keys(filter)) {
+      if (
+          [
+              "houseName",
+              "address",
+              "propertyType",
+              "type",
+              "state",
+              "subState",
+              "email",
+          ].includes(key) &&
+          filter[key] !== ""
+      ) {
+          query[key] = { $regex: filter[key], $options: "i" }; // Case-insensitive search
+      } else if (["rooms", "baths", "price"].includes(key) && filter[key] !== "") {
+          query[key] = Number(filter[key]); // Convert numeric values properly
+      }
+  }
+
+  const properties = await Property.paginate(query, options);
+  return properties;
+};
+const getPromotedASellProperties = async (filter, options) => {
   const query = { isPromotion: true }; // Ensure only promoted properties are fetched
 
   for (const key of Object.keys(filter)) {
@@ -119,6 +144,7 @@ module.exports = {
   getPropertyById,
   updateProperty,
   getMyProperty,
-  getPromotedProperties,
+  getPromotedASellProperties,
   deleteProperty,
+  getPromotedARentProperties,
 };

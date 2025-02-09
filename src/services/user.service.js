@@ -19,6 +19,7 @@ const createUser = async (userBody) => {
 };
 
 
+ 
 
 const queryUsers = async (filter, options) => {
   const query = {};
@@ -26,7 +27,7 @@ const queryUsers = async (filter, options) => {
   // Loop through each filter field and add conditions if they exist
   for (const key of Object.keys(filter)) {
     if (
-      (key === "fistName" || key === "email" || key === "username") &&
+      (key === "fullName" || key === "email" || key === "username") &&
       filter[key] !== ""
     ) {
       query[key] = { $regex: filter[key], $options: "i" }; // Case-insensitive regex search for name
@@ -35,12 +36,18 @@ const queryUsers = async (filter, options) => {
     }
   }
 
-  const users = await User.paginate(query, options);
+  // Default sorting by createdAt descending if not provided
+  const sort = options.sortBy || '-createdAt'; 
 
-  // Convert height and age to feet/inches here...
+  // Handle pagination and sorting
+  const users = await User.paginate(query, {
+    ...options,
+    sort: sort,
+  });
 
   return users;
 };
+
 
 
 

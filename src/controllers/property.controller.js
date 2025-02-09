@@ -82,7 +82,7 @@ const getAllProperties = catchAsync(async (req, res) => {
 });
 
 
-const getPromotedProperties = catchAsync(async (req, res) => {
+const getPromotedARentProperties = catchAsync(async (req, res) => {
   const filter = pick(req.query, [
       "houseName",
       "address",
@@ -100,8 +100,41 @@ const getPromotedProperties = catchAsync(async (req, res) => {
 
   // Add isPromotion: true to the query filter
   filter.isPromotion = true;
+  filter.propertyType = "rent" ;
 
-  const properties = await propertyService.getPromotedProperties(filter, options);
+  const properties = await propertyService.getPromotedARentProperties(filter, options);
+
+  res.status(httpStatus.OK).json(
+      response({
+          message: "Promoted properties retrieved successfully",
+          status: "OK",
+          statusCode: httpStatus.OK,
+          data: properties,
+      })
+  );
+});
+
+const getPromotedASellProperties = catchAsync(async (req, res) => {
+  const filter = pick(req.query, [
+      "houseName",
+      "address",
+      "propertyType",
+      "type",
+      "rooms",
+      "baths",
+      "price",
+      "state",
+      "subState",
+      "email",
+  ]);
+
+  const options = pick(req.query, ["sortBy", "limit", "page"]);
+
+  // Add isPromotion: true to the query filter
+  filter.isPromotion = true;
+  filter.propertyType = "sell" ;
+
+  const properties = await propertyService.getPromotedASellProperties(filter, options);
 
   res.status(httpStatus.OK).json(
       response({
@@ -209,7 +242,8 @@ module.exports = {
      getAllProperties,
      getPropertyById,
      getMyProperty,
-     getPromotedProperties,
+     getPromotedASellProperties,
+     getPromotedARentProperties,
      updateProperty,
      deleteProperty 
     };

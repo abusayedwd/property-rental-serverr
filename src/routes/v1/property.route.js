@@ -12,7 +12,8 @@ const router = express.Router();
 
 
 router.get('/getAllProperties', auth('common'), propertyController.getAllProperties)
-router.get('/getPromotedProperties', auth('common'), propertyController.getPromotedProperties)
+router.get('/getPromotedASellProperties', propertyController.getPromotedASellProperties)
+router.get('/getPromotedARentProperties', propertyController.getPromotedARentProperties)
 router.get('/getMyProperty', auth('common'), propertyController.getMyProperty)
 // router.get('/:id', auth('common'), propertyController.getPropertyById)
 

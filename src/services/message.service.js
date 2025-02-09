@@ -8,19 +8,22 @@ const {chatService} = require("../services");
   const message = await Messages.create({
     chatId: chat._id,
     sender,
-    receiver,
     text,
+    receiver,
   });
 
   await Chating.findByIdAndUpdate(chat._id, { lastMessage: message._id });
 
+  const envetName = `messages::${chat._id}` 
+  io.emit(envetName, message);  
+
   return message;
 }
-
+ 
  const getMessages = async(chatId) => {
   return await Messages.find({ chatId })
     .populate({
-      path: "sender receiver",
+      path: "sender",
       select: "fullName image role email",
     })
     

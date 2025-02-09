@@ -7,6 +7,7 @@ const docsRoute = require("./docs.routes");
 const propertyRoute = require("./property.route");
 const chatingRoute = require("./chating.route");
 const messagesRoute = require("./message.route");
+const paymentRoute = require("./subscription.route");
 
 
 const router = express.Router();
@@ -35,6 +36,10 @@ const defaultRoutes = [
   {
     path: "/messages",
     route: messagesRoute, 
+  },
+  {
+    path: "/payment",
+    route: paymentRoute,  
   }
   
  
