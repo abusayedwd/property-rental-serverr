@@ -21,7 +21,7 @@ const {chatService} = require("../services");
 }
  
  const getMessages = async(chatId) => {
-  return await Messages.find({ chatId })
+  return await Messages.find({ chatId }) 
     .populate({
       path: "sender",
       select: "fullName image role email",

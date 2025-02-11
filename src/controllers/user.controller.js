@@ -46,23 +46,7 @@ const getUsers = catchAsync(async (req, res) => {
 });
 
 
-const totalStatus = catchAsync(async( req, res) => {
-    const users = await User.countDocuments({role: "user"})
 
-    const landLord = await User.countDocuments({role: "landlord"})
-     
-    const data = {
-      users,
-      landLord
-    }
-
-    res
-    .status(httpStatus.OK).json(response({
-      message: "total status get successfully",
-      statusCode: httpStatus.OK,
-      data
-    }))
-})
 
 
 
@@ -153,5 +137,5 @@ module.exports = {
   updateUser,
   deleteUser,
   logedUser,
-  totalStatus
+ 
 };

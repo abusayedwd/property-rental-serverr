@@ -1,128 +1,225 @@
-const Transaction = require('../models/transaction.model');
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const httpStatus = require("http-status");
+const response = require("../config/response");
+const { Property, User } = require("../models");
+const Transaction = require("../models/transaction.model"); 
+const catchAsync = require("../utils/catchAsync");
+const { HttpStatusCode } = require("axios");
+const { pick } = require("lodash");
+const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+require("dotenv").config();
+ 
 
-// const Stripe = require("stripe");
-require('dotenv').config();
-// const stripe = require("stripe")(process.env.STRIPE_API_KEY_SECRET);
- 
- 
- 
-// const User = require('../models/User');
-// const endpointSecret=process.env.WEB_HOOK_SECRET
-
- 
-const createSubscription = async (req, res, next) => {
-  try {
-    const landlordId = req.user.id;
-    const { amount, timeDuration } = req.body;
+const createPromotionPayment = catchAsync (async(  req, res) => {
+  
+    const landlordId = req.user.id; // Assumed user info is in req.user
+    const { propertyId,  } = req.body; // Assuming propertyId is passed in the request
 
     // Validate required fields
-    if (!amount || !timeDuration) {
-      return res.status(400).json({ message: "All fields are required" });
+    if (!propertyId) {
+      return res.status(400).json({ message: "Property ID is required" });
     }
 
-    // Calculate expiration date (months -> milliseconds)
-    const expiresAt = new Date();
-    expiresAt.setMonth(expiresAt.getMonth() + timeDuration);
+    // Set the default item(s) for the promotion (assuming the price is $2)
+    const items = [
+      {
+        name: 'Property Promotion', // Name of the promotion
+        quantity: 1, // 1 quantity for the promotion
+      },
+    ];
 
-    // Save subscription to database
-    const newSubscription = await Transaction.create({
+    // Price is $2 (in cents, so 2 * 100 = 200 cents)
+    const amount = 2; 
+
+    // Create the Stripe Checkout session for payment of $2
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: items.map((item) => ({
+        price_data: {
+          currency: "usd",
+          product_data: {
+            name: item.name,
+          },
+          unit_amount: Math.round(amount * 100), // Convert amount to cents
+        },
+        quantity: item.quantity,
+      })),
+      mode: "payment",
+      success_url: "http://10.0.60.203:3004/",
+      cancel_url: "http://10.0.60.203:3004/",
+      customer_email: req.user.email, // Assuming the user's email is available in req.user
+      metadata: {
+        propertyId, // Store the property ID in metadata
+        promotionAmount: (amount * 100).toString(), // Store the promotion amount in cents
+      },
+      shipping_address_collection: {
+        allowed_countries: ["US", "GB", "BD", "CA"],
+      },
+    });
+
+    const newPromotion = await Transaction.create({
       landlordId,
+      propertyId,
       amount,
-      timeDuration,
-      expiresAt,
+      promotionStatus: "pending", // Initially set the promotion as pending
+      stripeSessionId: session.id, // Store Stripe session ID for reference
+      transactionId: session.payment_intent
     });
 
     res.status(200).json({
       status: 200,
-      message: "Subscription created successfully.",
-      subscription: newSubscription,
+      message: "Property promotion payment created successfully.",
+      promotion: newPromotion,
+      sessionId: session.id,
+      url: session.url // Return the session ID for frontend use
     });
+  
+});
+
+
+
+const stripeWebhook = async (req, res) => {
+  const sig = req.headers["stripe-signature"];
+  try {
+    let event;
+
+    if (!endpointSecret) {
+        throw new Error("Stripe webhook secret not configured.");
+    }
+
+    event = stripe.webhooks.constructEvent(req.rawBody, sig, endpointSecret);
+    console.log("Webhook verified.");
+
+    const data = event.data.object;
+    const eventType = event.type;
+
+    console.log(`Received event type: ${eventType}`);
+
+    // Handle successful payment event
+    if (eventType === 'checkout.session.completed') {
+      const session = event.data.object; // Get session details
+
+      console.log('Payment successfully completed. Session details:', session);
+
+      // Extract the propertyId from session metadata (assuming it's there)
+      const { propertyId } = session.metadata;
+
+      // Find and update the property by the property ID
+      const updatedProperty = await Property.findByIdAndUpdate(
+        propertyId,
+        { isPromotion: true }, // Set promotion to true after successful payment
+        { new: true } // Return the updated property document
+      );
+
+      if (!updatedProperty) {
+        console.log('Property not found for ID:', propertyId);
+        return res.status(404).json({ error: 'Property not found' });
+      }
+
+      console.log('Promotion activated for property:', updatedProperty);
+
+      // Optionally, you can also update the promotion status in the subscription or transaction model
+      const updatedPromotion = await Transaction.findOneAndUpdate(
+        { stripeSessionId: session.id }, // Filter condition
+        { 
+          transactionId: session.payment_intent, // Fields to update
+          promotionStatus: 'active'
+        }, 
+        { new: true } // Options
+      );
+
+      console.log('Transaction promotion status updated:', updatedPromotion);
+    }
+
+    res.status(200).json({ received: true });
   } catch (error) {
-    console.error(error);
-    next(error);
+    console.error('Error in webhook handler:', error.message);
+    res.status(500).json({ error: 'Webhook error' });
   }
 };
 
- 
+const getPromotionStatus = catchAsync(async (req, res) => {
+  const filter = pick(req.query, ["fullName", "role", "email"]);
+  const options = pick(req.query, ["sortBy", "limit", "page"]);
 
-// const stripeWebhook = async (req, res) => {
-//     try {
-//       const sig = req.headers["stripe-signature"];
-//       const endpointSecret = process.env.WEB_HOOK_SECRET;
-  
-//       let event;
-  
-//       try {
-//         // Verify the Stripe webhook signature
-//         event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
-//       } catch (err) {
-//         console.log("Stripe webhook signature verification failed:", err.message);
-//         return res.status(400).json(`Webhook Error: ${err.message}`);
-//       }
-  
-//       // Handle successful payment event
-//       if (event.type === "checkout.session.completed") {
-//         const session = event.data.object; // Get session details
-  
-//         console.log("Payment successfully completed. Session details:", session);
-  
-//         // Find and update the subscription by the Stripe session ID
-//         const updatedSubscription = await Subscription.findOneAndUpdate(
-//           { stripeSessionId: session.id },
-//           { paymentStatus: "paid", isActive: true },
-//           { new: true } // Return the updated subscription document
-//         );
-  
-//         if (!updatedSubscription) {
-//           console.log("Subscription not found for session ID:", session.id);
-//           return res.status(404).json({ error: "Subscription not found" });
-//         }
-  
-//         console.log("Subscription payment confirmed:", updatedSubscription);
-  
-//         // Update the user's subscription status
-//         const userId = updatedSubscription.companyId; // Assuming `userId` is stored in the subscription document
-//         await User.findByIdAndUpdate(
-//           userId,
-//           { isSubscribed: true },
-//           { new: true } // Return the updated user document
-//         );
-  
-//         console.log("User subscription status updated successfully for user ID:", userId);
-//       }
-  
-//       res.status(200).json({ received: true });
-//     } catch (error) {
-//       console.error("Error in webhook handler:", error.message);
-//       res.status(500).json({ error: "Webhook error" });
-//     }
-//   };
-  
- 
-const getSubscription = async (req, res, next) => {
-  try {
-    const landlordId = req.user.id;
+  // Set default values for pagination
+  const limit = options.limit ? parseInt(options.limit, 10) : 10; // Default to 10 items per page
+  const page = options.page ? parseInt(options.page, 10) : 1; // Default to page 1
 
-    // Fetch latest active subscription
-    const subscription = await Transaction.findOne();
+  const skip = (page - 1) * limit;
+
+  console.log(`skip: ${skip}, limit: ${limit}`); // Debugging log
+
+  // Fetch active promotions with pagination, sorted by most recent promotion first
+  const promotion = await Transaction.find({ 
+    promotionStatus: 'active',
+    ...filter // Apply any additional filters like fullName, role, or email
+  })
+  .skip(skip)
+  .limit(limit)
+  .populate("landlordId")
+  .sort({ createdAt: -1 }); // Sort by createdAt in descending order to get the most recent first
+
+  console.log('Promotion:', promotion); // Debugging log
+
+  if (!promotion || promotion.length === 0) {
+    return res.status(404).json({ message: "No active promotion found." });
+  }
+
+  // Get the total count of active promotions to calculate total pages
+  const totalResults = await Transaction.countDocuments({ promotionStatus: 'active', ...filter });
+  const totalPages = Math.ceil(totalResults / limit);
+
+  res.status(httpStatus.OK).json(
+    response({
+      message: "Transaction retrieved successfully",
+      status: "OK",
+      statusCode: httpStatus.OK,
+      data: promotion,
+      pagination: {
+        page: page, // Current page
+        limit: limit, // Items per page
+        totalPages: totalPages, // Total number of pages
+        totalResults: totalResults // Total number of results
+      }
+    })
+  );
+});
+
+
+
+
+const totalStatus = catchAsync(async( req, res) => {
+
+
+  const users = await User.countDocuments({role: "user"}) 
+  const landLord = await User.countDocuments({role: "landlord"})
+
+  const totalEarnings = await Transaction.find({promotionStatus: "active"}, "amount");  
+
+  // Calculate the total earnings
+  const totalAmount = totalEarnings.reduce((acc, cur) => acc + cur.amount, 0);
 
    
-
-    res.status(200).json({
-      status: 200,
-      message: "Subscription retrieved successfully.",
-      subscription,
-    });
-  } catch (error) {
-    console.error(error);
-    next(error);
+  const data = {
+    users,
+    landLord,
+    totalAmount
   }
-};
+
+  res
+  .status(httpStatus.OK).json(response({
+    message: "total status get successfully",
+    statusCode: httpStatus.OK,
+    data
+  }))
+})
 
 
 
 module.exports = {
-  createSubscription,
-//   stripeWebhook, 
-    getSubscription
+  createPromotionPayment,
+  stripeWebhook,
+  getPromotionStatus,
+  totalStatus
 };

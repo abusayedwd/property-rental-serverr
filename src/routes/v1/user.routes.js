@@ -12,10 +12,7 @@ const uploadUsers = userFileUploadMiddleware(UPLOADS_FOLDER_USERS);
 const router = express.Router();
 
 
-router.route("/getAllUsers").get(auth("common"), userController.getUsers);
-
-
-router.route("/getStatus").get(auth("common"), userController.totalStatus);
+router.route("/getAllUsers").get(auth("common"), userController.getUsers); 
 // router.route("/getAllUsers").get(userController.getUsers);
 
 

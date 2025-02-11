@@ -1,17 +1,34 @@
+// const express = require('express');
+// const router = express.Router();
+// const auth = require('../../middlewares/auth');
+// const { createPromotionPayment, stripeWebhook, getPromotionStatus } = require('../../controllers/transaction.controller');
+// const bodyParser = require('body-parser');
+
+// router.post('/create-promotion-payment', auth('landlord'), createPromotionPayment);
+
+// // Webhook route to handle payment success
+// router.post('/stripe-webhook', bodyParser.raw({ type: 'application/json' }), stripeWebhook);
+
+// // Route for getting active promotion status
+// router.get('/getPromotionPayment', auth('common'), getPromotionStatus);
+
+// module.exports = router;
+
 
 
 
 const express = require('express');
 const router = express.Router();
- 
 const auth = require('../../middlewares/auth');
-const { createSubscription, getSubscription } = require('../../controllers/transaction.controller');
+const { createPromotionPayment, stripeWebhook, getPromotionStatus, totalStatus } = require('../../controllers/transaction.controller');
+const bodyParser = require("body-parser");
 
+// Webhook route to handle payment success
+router.post('/stripe-webhook', bodyParser.raw({ type: "application/json" }), stripeWebhook);
 
-// Route to get About Us text
-router.post('/createSubscription', auth('landlord'), createSubscription);  
-router.get('/getSubscription', auth('landlord'), getSubscription);  
- 
+// Other routes
+router.post('/create-promotion-payment', auth('landlord'), createPromotionPayment);
+router.get('/getPromotionPayment', auth('common'), getPromotionStatus);
+router.get('/totalStatus', auth('common'), totalStatus);
 
-
-module.exports = router;
+module.exports = router;  

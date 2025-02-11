@@ -27,3 +27,28 @@ const socketIO = (io) => {
 };
 
 module.exports = socketIO;
+
+
+
+// Backend (Node.js)
+// const io = require("socket.io");
+
+
+// const socketIO = (io) => {
+
+//   io.on("connection", (socket) => {
+//     console.log("a user connected");
+  
+//     socket.on("send_message", (message) => {
+//       // Broadcast the message to all connected clients
+//       io.emit("receive_message", message);
+//     });
+  
+//     socket.on("disconnect", () => {
+//       console.log("user disconnected");
+//     });
+//   });
+
+// };
+
+// module.exports = socketIO;

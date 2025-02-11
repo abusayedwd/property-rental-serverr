@@ -14,6 +14,8 @@ const { authLimiter } = require("./middlewares/rateLimiter");
 const routes = require("./routes/v1");
 const { errorConverter, errorHandler } = require("./middlewares/error");
 const ApiError = require("./utils/ApiError");
+const bodyParser = require("body-parser");
+
 
 const app = express();
 
@@ -25,14 +27,25 @@ if (config.env !== "test") {
 // malter for file upload
 app.use(express.static("public"));
 
+app.use(
+  bodyParser.json({
+    verify: function (req, res, buf) {
+      req.rawBody = buf;
+    },
+  })
+);
+
+app.use(bodyParser.urlencoded({ extended: true }));
+
+bodyParser.raw({ type: "application/json" });
+
 // set security HTTP headers
 app.use(helmet());
 
 // parse json request body
 app.use(express.json());
 
-// parse urlencoded request body
-app.use(express.urlencoded({ extended: true }));
+
 
 // sanitize request data
 app.use(xss());
@@ -59,6 +72,9 @@ app.use(status());
 
 // v1 api routes
 app.use("/v1", routes);
+
+
+
 
 //testing API is alive
 app.get("/test", (req, res) => {

@@ -15,11 +15,18 @@ mongoose.connect(config.mongoose.url, config.mongoose.options).then(() => {
   });
 
   //initializing socket io
+  // const io = socketIo(server, {
+  //   cors: {
+  //     origin: "*"
+  //   },
+  // });
+  
   const socketIo = require("socket.io");
   const socketIO = require("./utils/socketIO");
   const io = socketIo(server, {
     cors: {
-      origin: "*"
+      origin: "http://10.0.60.203:3004/",
+      methods: ["GET", "POST"],
     },
   });
 

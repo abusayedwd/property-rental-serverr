@@ -124,7 +124,7 @@ const getMyProperty = async (landlordId,filter, options) => {
 // Get Property by ID
 
 const getPropertyById = async (id) => {
-  return await Property.findById(id);
+  return await Property.findById(id).populate("landlordId");
 };
 
 // Update Property

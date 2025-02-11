@@ -1,7 +1,7 @@
 const { Chating} = require("../models");
 
 async function createChat(userId, senderId) {
-  const existingChat = await Chating.findOne({ participants: { $all:  [userId, senderId] } });
+  const existingChat = await Chating.findOne({ participants: { $all:  [userId, senderId]}});
   if (existingChat) return existingChat;
 
   const newChat = new Chating({ 
