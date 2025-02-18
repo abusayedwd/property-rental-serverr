@@ -51,19 +51,65 @@ const register = catchAsync(async (req, res) => {
   }
 });
 
+// const login = catchAsync(async (req, res) => {
+//   const { email, password } = req.body;
+//   const isUser = await userService.getUserByEmail(email);
+//   // here we check if the user is in the database or not
+//   if (isUser?.isDeleted === true) {
+//     throw new ApiError(httpStatus.BAD_REQUEST, "This Account is Deleted");
+//   }
+//   if (isUser?.isEmailVerified === false) {
+//     throw new ApiError(httpStatus.BAD_REQUEST, "Email not verified");
+//   }
+//   if (!isUser) {
+//     throw new ApiError(httpStatus.NOT_FOUND, "No users found with this email");
+//   }
+//   const user = await authService.loginUserWithEmailAndPassword(email, password);
+
+//   setTimeout(async () => {
+//     try {
+//       user.oneTimeCode = null;
+//       user.isResetPassword = false;
+//       await user.save();
+//       console.log("oneTimeCode reset to null after 3 minute");
+//     } catch (error) {
+//       ApiError;
+//       console.error("Error updating oneTimeCode:", error);
+//     }
+//   }, 180000); // 3 minute in milliseconds
+
+//   const tokens = await tokenService.generateAuthTokens(user);
+//   res.status(httpStatus.OK).json(
+//     response({
+//       message: "Login Successful",
+//       status: "OK",
+//       statusCode: httpStatus.OK,
+//       data: { user, tokens },
+//     })
+//   );
+// });
+
 const login = catchAsync(async (req, res) => {
   const { email, password } = req.body;
   const isUser = await userService.getUserByEmail(email);
+
   // here we check if the user is in the database or not
-  if (isUser?.isDeleted === true) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "This Account is Deleted");
-  }
-  if (isUser?.isEmailVerified === false) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "Email not verified");
-  }
   if (!isUser) {
     throw new ApiError(httpStatus.NOT_FOUND, "No users found with this email");
   }
+
+  if (isUser?.isDeleted === true) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "This Account is Deleted");
+  }
+
+  if (isUser?.isEmailVerified === false) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Email not verified");
+  }
+
+  if (isUser?.isBlocked === true) {
+    throw new ApiError(httpStatus.FORBIDDEN, "User is blocked");
+  }
+
   const user = await authService.loginUserWithEmailAndPassword(email, password);
 
   setTimeout(async () => {
@@ -71,14 +117,14 @@ const login = catchAsync(async (req, res) => {
       user.oneTimeCode = null;
       user.isResetPassword = false;
       await user.save();
-      console.log("oneTimeCode reset to null after 3 minute");
+      console.log("oneTimeCode reset to null after 3 minutes");
     } catch (error) {
-      ApiError;
       console.error("Error updating oneTimeCode:", error);
     }
-  }, 180000); // 3 minute in milliseconds
+  }, 180000); // 3 minutes in milliseconds
 
   const tokens = await tokenService.generateAuthTokens(user);
+
   res.status(httpStatus.OK).json(
     response({
       message: "Login Successful",
@@ -88,6 +134,10 @@ const login = catchAsync(async (req, res) => {
     })
   );
 });
+
+
+
+
 
 const logout = catchAsync(async (req, res) => {
   // await authService.logout(req.body.refreshToken);

@@ -8,7 +8,7 @@ const register = {
     fullName: Joi.string(),
     street: Joi.string(),
     streetName: Joi.string(),
-    distric: Joi.string(),
+    company: Joi.string(),
     city: Joi.string(), 
     role: Joi.string().valid("user", "landlord", "admin"),
   }),

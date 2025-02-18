@@ -2,7 +2,9 @@ const mongoose = require("mongoose");
 const app = require("./app");
 const config = require("./config/config");
 const logger = require("./config/logger");
-
+const socketIo = require("socket.io");
+const { Server } = require("socket.io");
+const socketIO = require("./utils/socketIO");
 // My Local IP Address
 const myIp = process.env.BACKEND_IP;
 
@@ -15,30 +17,34 @@ mongoose.connect(config.mongoose.url, config.mongoose.options).then(() => {
   });
 
   //initializing socket io
-  // const io = socketIo(server, {
+  // const io = socketIo(server, { 
   //   cors: {
   //     origin: "*"
   //   },
   // });
   
-  const socketIo = require("socket.io");
-  const socketIO = require("./utils/socketIO");
-  const io = socketIo(server, {
+
+  const io = new Server(server, {
     cors: {
-      origin: "http://10.0.60.203:3004/",
+      origin: "http://localhost:3004/", // Replace with your frontend URL
       methods: ["GET", "POST"],
-    },
+    }, 
   });
-
+  
+  
   socketIO(io);
-
+  
   global.io = io;
   server.listen(config.port, process.env.BACKEND_IP, () => {
     logger.info(`Socket IO listening to port ${config.port}`);
-  });
-});
+  }); 
 
-const exitHandler = () => {
+
+});  
+
+
+
+const exitHandler = () => { 
   if (server) {
     server.close(() => {
       logger.info("Server closed");

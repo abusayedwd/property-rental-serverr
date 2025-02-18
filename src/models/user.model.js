@@ -40,7 +40,7 @@ const userSchema = mongoose.Schema(
     image: {
       type: Object,
       required: [true, "Image is must be Required"],
-      default: { url: `/uploads/users/user.png`, path: "null" },
+      default: { url: `/uploads/users/user.3.jpg`, path: "null" },
     },
     password: {
       type: String,
@@ -94,7 +94,7 @@ const userSchema = mongoose.Schema(
       type: String,
       required: false,
     },
-    gender: {
+    company: {
       type: String,
       required: false,
     },
@@ -103,6 +103,10 @@ const userSchema = mongoose.Schema(
       required: false,
     },
     isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    isBlocked: {
       type: Boolean,
       default: false,
     },

@@ -45,6 +45,23 @@ const getUsers = catchAsync(async (req, res) => {
     );
 });
 
+ 
+
+const toggleBlockStatus = catchAsync(async (req, res) => {
+  const { userId } = req.params;  // Get userId from URL parameters
+
+  if (!userId) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "User ID is required");
+  }
+
+  // Call the service to toggle the block status
+  const updatedUser = await userService.toggleUserBlockStatus(userId);
+
+  res.status(httpStatus.OK).json({
+    message: `User is successfully ${updatedUser.isBlocked ? 'blocked' : 'unblocked'}`,
+    data: updatedUser,
+  });
+});
 
 
 
@@ -137,5 +154,6 @@ module.exports = {
   updateUser,
   deleteUser,
   logedUser,
+  toggleBlockStatus,
  
 };

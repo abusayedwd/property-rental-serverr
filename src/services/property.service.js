@@ -10,6 +10,7 @@ const createProperty = async (data) => {
     throw new ApiError(httpStatus.BAD_REQUEST, "houseName alredy exist");
   }
   return await Property.create(data);
+  
 };
  
 const getAllProperties = async (filter, options) => {

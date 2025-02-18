@@ -8,26 +8,77 @@ const pick = require("../utils/pick");
 const ApiError = require("../utils/ApiError");
  
 // Create Property
+// const createProperty = catchAsync(async (req, res) => {
+//   const userId = req.user.id
+//   console.log(userId)
+//   const { houseName, place,date,textArea, propertyType, type, rooms, baths, price, state, subState, isPromotion } = req.body;
+
+//   const image = {};
+//   if (req.file) {
+//     image.url = "/uploads/property/" + req.file.filename;
+//     image.path = req.file.path;
+//   }
+//   if (req.file) {
+//     req.body.image = image;
+//   }
+
+// //  console.log("233333333333", req.file)
+
+//   const propertyData = new Property({
+//     landlordId:userId,
+//     date,
+//     textArea,
+//     houseName,
+//     place,
+//     propertyType,
+//     type,
+//     rooms,
+//     baths,
+//     price,
+//     state,
+//     subState,
+//     isPromotion,
+//     image,
+//   });
+
+//   const property = await propertyService.createProperty(propertyData);
+//   res
+//     .status(httpStatus.CREATED)
+//     .json(
+//       response({
+//         message: "Property Created",
+//         status: "OK",
+//         statusCode: httpStatus.CREATED,
+//         data: property,
+//       })
+//     );
+// });
+
 const createProperty = catchAsync(async (req, res) => {
-  const userId = req.user.id
-  console.log(userId)
-  const { houseName, address, propertyType, type, rooms, baths, price, state, subState, isPromotion } = req.body;
+  const userId = req.user.id;
+  console.log(userId);
+  const { houseName, place, date, textArea, propertyType, type, rooms, baths, price, state, subState, isPromotion } = req.body;
 
-  const image = {};
-  if (req.file) {
-    image.url = "/uploads/property/" + req.file.filename;
-    image.path = req.file.path;
+  const images = [];
+  if (req.files && req.files.length >= 1 && req.files.length <= 5) {
+    req.files.forEach(file => {
+      images.push({
+        url: "/uploads/property/" + file.filename,
+        path: file.path,
+      });
+    });
+  } else {
+    return res.status(400).json({
+      message: "You must upload between 1 and 5 images.",
+    });
   }
-  if (req.file) {
-    req.body.image = image;
-  }
-
- console.log("233333333333", req.file)
 
   const propertyData = new Property({
-    landlordId:userId,
+    landlordId: userId,
+    date,
+    textArea,
     houseName,
-    address,
+    place,
     propertyType,
     type,
     rooms,
@@ -36,7 +87,7 @@ const createProperty = catchAsync(async (req, res) => {
     state,
     subState,
     isPromotion,
-    image,
+    images,
   });
 
   const property = await propertyService.createProperty(propertyData);
@@ -51,6 +102,9 @@ const createProperty = catchAsync(async (req, res) => {
       })
     );
 });
+
+
+
 
 
 // Get All Properties

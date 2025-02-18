@@ -11,20 +11,25 @@ const uploadUsers = userFileUploadMiddleware(UPLOADS_FOLDER_USERS);
 const router = express.Router();
 
 
-router.get('/getAllProperties', auth('common'), propertyController.getAllProperties)
+router.get('/getAllProperties',  propertyController.getAllProperties)
 router.get('/getPromotedASellProperties', propertyController.getPromotedASellProperties)
 router.get('/getPromotedARentProperties', propertyController.getPromotedARentProperties)
 router.get('/getMyProperty', auth('common'), propertyController.getMyProperty)
 // router.get('/:id', auth('common'), propertyController.getPropertyById)
 
-router.post('/createProperty',auth("landlord"), 
-[uploadUsers.single("image")],
+// router.post('/createProperty',auth("landlord"), 
+// [uploadUsers.single("image")],
+// convertHeicToPngMiddleware(UPLOADS_FOLDER_USERS),
+// propertyController.createProperty);
+
+router.post('/createProperty', auth("landlord"), 
+[uploadUsers.array("images", 5)], // Allow 1 to 5 images
 convertHeicToPngMiddleware(UPLOADS_FOLDER_USERS),
 propertyController.createProperty);
 
 router
   .route("/:id")
-  .get(auth("common"),propertyController.getPropertyById)
+  .get( propertyController.getPropertyById)
   .patch(
     auth("landlord"),
     [uploadUsers.single("image")],

@@ -9,7 +9,9 @@ const propertySchema = new mongoose.Schema(
       required: true,
     },
     houseName: { type: String, required: true },
-    address: { type: String, required: true },
+    textArea: { type: String, required: true },
+    date: { type: String, required: true },
+    place: { type: String, required: true },
     propertyType: { type: String, enum: ["sell", "rent"], required: true },
     type: { type: String, required: true },
     rooms: { type: Number, required: true },
@@ -21,11 +23,22 @@ const propertySchema = new mongoose.Schema(
       type: Boolean,
       default: false // Default value is false
     },
-    image: {
-        type: Object,
-        required: [true, "Image is must be Required"],
-        default: { url: `/uploads/property/user.png`, path: "null" },
-      },
+    images: {
+      type: [
+        {
+          url: {
+            type: String, 
+            required: true,
+          },
+          path: {
+            type: String,
+            required: true, 
+          },
+        },
+      ],
+      required: [true, "Image is must be Required"],
+      default: [{ url: `/uploads/property/user.png`, path: "null" }],
+    },
    
   },
   { timestamps: true }
