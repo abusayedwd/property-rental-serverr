@@ -35,7 +35,7 @@ mongoose.connect(config.mongoose.url, config.mongoose.options).then(() => {
   socketIO(io);
   
   global.io = io;
-  server.listen(config.port, process.env.BACKEND_IP, () => {
+  server.listen(config.port, process.env.BACKEND_IP, () => { 
     logger.info(`Socket IO listening to port ${config.port}`);
   }); 
 

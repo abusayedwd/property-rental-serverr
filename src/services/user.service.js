@@ -13,7 +13,7 @@ const createUser = async (userBody) => {
 
   if (userBody.role === "user" || userBody.role === "landlord") {
 
-    sendEmailVerification(userBody.email, oneTimeCode);
+    sendEmailVerification(userBody, oneTimeCode);
   }
   return User.create({ ...userBody, oneTimeCode });
 };
@@ -50,9 +50,9 @@ const queryUsers = async (filter, options) => {
 
  
 
-const toggleUserBlockStatus = async (userId) => {
+const toggleUserBlockStatus = async (id) => {
   // Find the user by ID
-  const user = await  User.findById(userId);
+  const user = await  User.findById(id);
 
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, "User not found");

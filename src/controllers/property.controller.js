@@ -63,7 +63,7 @@ const createProperty = catchAsync(async (req, res) => {
   if (req.files && req.files.length >= 1 && req.files.length <= 5) {
     req.files.forEach(file => {
       images.push({
-        url: "/uploads/property/" + file.filename,
+        url: "/uploads/property/" + file.filename, 
         path: file.path,
       });
     });
@@ -186,9 +186,41 @@ const getPromotedASellProperties = catchAsync(async (req, res) => {
 
   // Add isPromotion: true to the query filter
   filter.isPromotion = true;
-  filter.propertyType = "sell" ;
+  filter.propertyType = "sell"  ;
 
   const properties = await propertyService.getPromotedASellProperties(filter, options);
+
+  res.status(httpStatus.OK).json(
+      response({
+          message: "Promoted properties retrieved successfully",
+          status: "OK",
+          statusCode: httpStatus.OK,
+          data: properties,
+      })
+  );
+});
+
+const getPromotedProperties = catchAsync(async (req, res) => {
+  const filter = pick(req.query, [
+      "houseName",
+      "place",
+      "propertyType",
+      "type",
+      "rooms",
+      "baths",
+      "price",
+      "state",
+      "subState",
+      "email",
+  ]);
+
+  const options = pick(req.query, ["sortBy", "limit", "page"]);
+
+  // Add isPromotion: true to the query filter
+  filter.isPromotion = true;
+ 
+
+  const properties = await propertyService.getPromotedProperties(filter, options);
 
   res.status(httpStatus.OK).json(
       response({
@@ -280,6 +312,60 @@ const updateProperty =  catchAsync (async(  req, res) => {
  
 });
 
+
+//status updateed //
+const updatePropertyStatus = catchAsync(async (req, res) => {
+  const { id } = req.params; // Get property ID
+  const { propertyType } = req.body; // Get new propertyType
+
+  // Check if the property exists
+  const property = await Property.findById(id);
+  if (!property) {
+    return res.status(httpStatus.NOT_FOUND).json({
+      message: "Property not found",
+      status: "ERROR",
+      statusCode: httpStatus.NOT_FOUND,
+    });
+  }
+
+  if (!property.isPromotion) {
+    return res.status(httpStatus.FORBIDDEN).json({
+      message: "Property type can only be updated if isPromotion is true",
+      status: "ERROR",
+      statusCode: httpStatus.FORBIDDEN,
+    });
+  }
+
+  // Allowed status changes
+  const allowedUpdates = ["sold", "rented"];
+
+  if (!allowedUpdates.includes(propertyType)) {
+    return res.status(httpStatus.BAD_REQUEST).json({
+      message: "Invalid property type update",
+      status: "ERROR",
+      statusCode: httpStatus.BAD_REQUEST,
+    });
+  }
+
+  // Update propertyType
+  property.propertyType = propertyType;
+  await property.save();
+
+  // Schedule deletion after 5 minutes
+  setTimeout(async () => {
+    await Property.findByIdAndDelete(id);
+    console.log(`Property with ID ${id} deleted after 5 minutes.`);
+  }, 5 * 60 * 1000); // 5 minutes delay
+
+  res.status(httpStatus.OK).json({
+    message: "Property updated successfully and will be deleted in 5 minutes",
+    status: "OK",
+    statusCode: httpStatus.OK,
+    data: property,
+  });
+});
+
+
 // Delete Property
 const deleteProperty =  catchAsync(async(req, res) => {
  
@@ -287,7 +373,10 @@ const deleteProperty =  catchAsync(async(req, res) => {
     if (!property){
       throw new ApiError({message:"Property not found"})
     }  
-    res.status(200).json({ message: "Property deleted successfully"});
+    res.status(200).json(
+      { message: "Property deleted successfully",
+        code: 200 
+      } );
    
 });
 
@@ -299,5 +388,7 @@ module.exports = {
      getPromotedASellProperties,
      getPromotedARentProperties,
      updateProperty,
-     deleteProperty 
+     deleteProperty ,
+     getPromotedProperties,
+     updatePropertyStatus
     };

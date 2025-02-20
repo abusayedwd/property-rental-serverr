@@ -18,7 +18,7 @@ router.route("/getAllUsers").get(auth("common"), userController.getUsers);
 
 router.route("/logedUser").get(auth("common"), userController.logedUser);
 
-router.patch('/blockstatus/:userId', auth("admin"), userController.toggleBlockStatus);
+router.patch('/blockstatus/:id', auth("admin"), userController.toggleBlockStatus);
 
 router
   .route("/:userId")

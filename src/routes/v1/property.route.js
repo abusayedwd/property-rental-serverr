@@ -12,10 +12,12 @@ const router = express.Router();
 
 
 router.get('/getAllProperties',  propertyController.getAllProperties)
+router.get('/getPromotedProperties',  propertyController.getPromotedProperties)
 router.get('/getPromotedASellProperties', propertyController.getPromotedASellProperties)
 router.get('/getPromotedARentProperties', propertyController.getPromotedARentProperties)
 router.get('/getMyProperty', auth('common'), propertyController.getMyProperty)
 // router.get('/:id', auth('common'), propertyController.getPropertyById)
+router.put("/updatePropertyStatus/:id",auth('landlord'), propertyController.updatePropertyStatus);
 
 // router.post('/createProperty',auth("landlord"), 
 // [uploadUsers.single("image")],
@@ -36,7 +38,7 @@ router
     convertHeicToPngMiddleware(UPLOADS_FOLDER_USERS),
     propertyController.updateProperty 
   )
-  .delete(auth('landlord'), propertyController.deleteProperty)
+  .delete(auth('common'), propertyController.deleteProperty)
  
 
 module.exports = router;

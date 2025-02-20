@@ -12,7 +12,7 @@ const propertySchema = new mongoose.Schema(
     textArea: { type: String, required: true },
     date: { type: String, required: true },
     place: { type: String, required: true },
-    propertyType: { type: String, enum: ["sell", "rent"], required: true },
+    propertyType: { type: String, enum: ["sell", "rent", "sold","rented"], required: true },
     type: { type: String, required: true },
     rooms: { type: Number, required: true },
     baths: { type: Number, required: true },
@@ -44,7 +44,8 @@ const propertySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-propertySchema.plugin(toJSON);
-propertySchema.plugin(paginate);
+propertySchema.plugin(toJSON); 
+propertySchema.plugin(paginate); 
 
 module.exports = mongoose.model("Property", propertySchema);
+ 
