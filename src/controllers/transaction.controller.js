@@ -6,185 +6,187 @@ const Transaction = require("../models/transaction.model");
 const catchAsync = require("../utils/catchAsync");
 const { HttpStatusCode } = require("axios");
 const { pick } = require("lodash");
+const paymentModel = require("../models/payment.model");
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 require("dotenv").config();
  
 
-const createPromotionPayment = catchAsync (async(  req, res) => {
+// const createPromotionPayment = catchAsync (async(  req, res) => {
   
-    const landlordId = req.user.id; // Assumed user info is in req.user
-    const { propertyId,  } = req.body; // Assuming propertyId is passed in the request
+//     const landlordId = req.user.id; // Assumed user info is in req.user
+//     const { propertyId,  } = req.body; // Assuming propertyId is passed in the request
 
-    // Validate required fields
-    if (!propertyId) {
-      return res.status(400).json({ message: "Property ID is required" });
-    }
+//     // Validate required fields
+//     if (!propertyId) {
+//       return res.status(400).json({ message: "Property ID is required" });
+//     }
 
-    // Set the default item(s) for the promotion (assuming the price is $2)
-    const items = [
-      {
-        name: 'Property Promotion', // Name of the promotion
-        quantity: 1, // 1 quantity for the promotion
-      },
-    ];
+//     // Set the default item(s) for the promotion (assuming the price is $2)
+//     const items = [
+//       {
+//         name: 'Property Promotion', // Name of the promotion
+//         quantity: 1, // 1 quantity for the promotion
+//       },
+//     ];
 
-    // Price is $2 (in cents, so 2 * 100 = 200 cents)
-    const amount = 2; 
+//     // Price is $2 (in cents, so 2 * 100 = 200 cents)
+//     const amount = 2; 
 
-    // Create the Stripe Checkout session for payment of $2
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
-      line_items: items.map((item) => ({
-        price_data: {
-          currency: "usd",
-          product_data: {
-            name: item.name,
-          },
-          unit_amount: Math.round(amount * 100), // Convert amount to cents
-        },
-        quantity: item.quantity,
-      })),
-      mode: "payment",
-      success_url: "http://10.0.60.203:3004/",
-      cancel_url: "http://10.0.60.203:3004/",
-      customer_email: req.user.email, // Assuming the user's email is available in req.user
-      metadata: {
-        propertyId, // Store the property ID in metadata
-        promotionAmount: (amount * 100).toString(), // Store the promotion amount in cents
-      },
-      shipping_address_collection: {
-        allowed_countries: ["US", "GB", "BD", "CA"],
-      },
-    });
+//     // Create the Stripe Checkout session for payment of $2
+//     const session = await stripe.checkout.sessions.create({
+//       payment_method_types: ["card"],
+//       line_items: items.map((item) => ({
+//         price_data: {
+//           currency: "usd",
+//           product_data: {
+//             name: item.name,
+//           },
+//           unit_amount: Math.round(amount * 100), // Convert amount to cents
+//         },
+//         quantity: item.quantity,
+//       })),
+//       mode: "payment",
+//       success_url: "http://10.0.60.203:3004/",
+//       cancel_url: "http://10.0.60.203:3004/",
+//       customer_email: req.user.email, // Assuming the user's email is available in req.user
+//       metadata: {
+//         propertyId, // Store the property ID in metadata
+//         promotionAmount: (amount * 100).toString(), // Store the promotion amount in cents
+//       },
+//       shipping_address_collection: {
+//         allowed_countries: ["US", "GB", "BD", "CA"],
+//       },
+//     });
 
-    const newPromotion = await Transaction.create({
-      landlordId,
-      propertyId,
-      amount,
-      promotionStatus: "pending", // Initially set the promotion as pending
-      stripeSessionId: session.id, // Store Stripe session ID for reference
-      transactionId: session.payment_intent
-    });
+//     const newPromotion = await Transaction.create({
+//       landlordId,
+//       propertyId,
+//       amount,
+//       promotionStatus: "pending", // Initially set the promotion as pending
+//       stripeSessionId: session.id, // Store Stripe session ID for reference
+//       transactionId: session.payment_intent
+//     });
 
-    res.status(200).json({
-      status: 200,
-      message: "Property promotion payment created successfully.",
-      promotion: newPromotion,
-      sessionId: session.id,
-      url: session.url // Return the session ID for frontend use
-    });
+//     res.status(200).json({
+//       status: 200,
+//       message: "Property promotion payment created successfully.",
+//       promotion: newPromotion,
+//       sessionId: session.id,
+//       url: session.url // Return the session ID for frontend use
+//     });
   
-});
+// });
 
 
 
-const stripeWebhook = async (req, res) => {
-  const sig = req.headers["stripe-signature"];
-  try {
-    let event;
+// const stripeWebhook = async (req, res) => {
+//   const sig = req.headers["stripe-signature"];
+//   try {
+//     let event;
 
-    if (!endpointSecret) {
-        throw new Error("Stripe webhook secret not configured.");
-    }
+//     if (!endpointSecret) {
+//         throw new Error("Stripe webhook secret not configured.");
+//     }
 
-    event = stripe.webhooks.constructEvent(req.rawBody, sig, endpointSecret);
-    console.log("Webhook verified.");
+//     event = stripe.webhooks.constructEvent(req.rawBody, sig, endpointSecret);
+//     console.log("Webhook verified.");
 
-    const data = event.data.object;
-    const eventType = event.type;
+//     const data = event.data.object;
+//     const eventType = event.type;
 
-    console.log(`Received event type: ${eventType}`);
+//     console.log(`Received event type: ${eventType}`);
 
-    // Handle successful payment event
-    if (eventType === 'checkout.session.completed') {
-      const session = event.data.object; // Get session details
+//     // Handle successful payment event
+//     if (eventType === 'checkout.session.completed') {
+//       const session = event.data.object; // Get session details
 
-      console.log('Payment successfully completed. Session details:', session);
+//       console.log('Payment successfully completed. Session details:', session);
 
-      // Extract the propertyId from session metadata (assuming it's there)
-      const { propertyId } = session.metadata;
+//       // Extract the propertyId from session metadata (assuming it's there)
+//       const { propertyId } = session.metadata;
 
-      // Find and update the property by the property ID
-      const updatedProperty = await Property.findByIdAndUpdate(
-        propertyId,
-        { isPromotion: true }, // Set promotion to true after successful payment
-        { new: true } // Return the updated property document
-      );
+//       // Find and update the property by the property ID
+//       const updatedProperty = await Property.findByIdAndUpdate(
+//         propertyId,
+//         { isPromotion: true }, // Set promotion to true after successful payment
+//         { new: true } // Return the updated property document
+//       );
 
-      if (!updatedProperty) {
-        console.log('Property not found for ID:', propertyId);
-        return res.status(404).json({ error: 'Property not found' });
-      }
+//       if (!updatedProperty) {
+//         console.log('Property not found for ID:', propertyId);
+//         return res.status(404).json({ error: 'Property not found' });
+//       }
 
-      console.log('Promotion activated for property:', updatedProperty);
+//       console.log('Promotion activated for property:', updatedProperty);
 
-      // Optionally, you can also update the promotion status in the subscription or transaction model
-      const updatedPromotion = await Transaction.findOneAndUpdate(
-        { stripeSessionId: session.id }, // Filter condition
-        { 
-          transactionId: session.payment_intent, // Fields to update
-          promotionStatus: 'active'
-        }, 
-        { new: true } // Options
-      );
+//       // Optionally, you can also update the promotion status in the subscription or transaction model
+//       const updatedPromotion = await Transaction.findOneAndUpdate(
+//         { stripeSessionId: session.id }, // Filter condition
+//         { 
+//           transactionId: session.payment_intent, // Fields to update
+//           promotionStatus: 'active'
+//         }, 
+//         { new: true } // Options
+//       );
 
-      console.log('Transaction promotion status updated:', updatedPromotion);
-    }
+//       console.log('Transaction promotion status updated:', updatedPromotion);
+//     }
 
-    res.status(200).json({ received: true });
-  } catch (error) {
-    console.error('Error in webhook handler:', error.message);
-    res.status(500).json({ error: 'Webhook error' });
-  }
-};
+//     res.status(200).json({ received: true });
+//   } catch (error) {
+//     console.error('Error in webhook handler:', error.message);
+//     res.status(500).json({ error: 'Webhook error' });
+//   }
+// };
 
-const getPromotionStatus = catchAsync(async (req, res) => {
-  const filter = pick(req.query, ["fullName", "role", "email"]);
-  const options = pick(req.query, ["sortBy", "limit", "page"]);
 
-  // Set default values for pagination
-  const limit = options.limit ? parseInt(options.limit, 10) : 10; // Default to 10 items per page
-  const page = options.page ? parseInt(options.page, 10) : 1; // Default to page 1
+// const getPromotionStatus = catchAsync(async (req, res) => {
+//   const filter = pick(req.query, ["fullName", "role", "email"]);
+//   const options = pick(req.query, ["sortBy", "limit", "page"]);
 
-  const skip = (page - 1) * limit;
+//   // Set default values for pagination
+//   const limit = options.limit ? parseInt(options.limit, 10) : 10; // Default to 10 items per page
+//   const page = options.page ? parseInt(options.page, 10) : 1; // Default to page 1
 
-  console.log(`skip: ${skip}, limit: ${limit}`); // Debugging log
+//   const skip = (page - 1) * limit;
 
-  // Fetch active promotions with pagination, sorted by most recent promotion first
-  const promotion = await Transaction.find({ 
-    promotionStatus: 'active',
-    ...filter // Apply any additional filters like fullName, role, or email
-  })
-  .skip(skip)
-  .limit(limit)
-  .populate("landlordId")
-  .sort({ createdAt: -1 }); // Sort by createdAt in descending order to get the most recent first
+//   console.log(`skip: ${skip}, limit: ${limit}`); // Debugging log
 
-  console.log('Promotion:', promotion); // Debugging log
+//   // Fetch active promotions with pagination, sorted by most recent promotion first
+//   const promotion = await Transaction.find({ 
+//     promotionStatus: 'active',
+//     ...filter // Apply any additional filters like fullName, role, or email
+//   })
+//   .skip(skip)
+//   .limit(limit)
+//   .populate("landlordId")
+//   .sort({ createdAt: -1 }); // Sort by createdAt in descending order to get the most recent first
 
-  if (!promotion || promotion.length === 0) {
-    return res.status(404).json({ message: "No active promotion found." });
-  }
+//   console.log('Promotion:', promotion); // Debugging log
 
-  // Get the total count of active promotions to calculate total pages
-  const totalResults = await Transaction.countDocuments({ promotionStatus: 'active', ...filter });
-  const totalPages = Math.ceil(totalResults / limit);
+//   if (!promotion || promotion.length === 0) {
+//     return res.status(404).json({ message: "No active promotion found." });
+//   }
 
-  res.status(httpStatus.OK).json(
-    response({
-      message: "Transaction retrieved successfully",
-      status: "OK",
-      statusCode: httpStatus.OK,
-      data: promotion,
-      pagination: {
-        page: page, // Current page
-        limit: limit, // Items per page
-        totalPages: totalPages, // Total number of pages
-        totalResults: totalResults // Total number of results
-      }
-    })
-  );
-});
+//   // Get the total count of active promotions to calculate total pages
+//   const totalResults = await Transaction.countDocuments({ promotionStatus: 'active', ...filter });
+//   const totalPages = Math.ceil(totalResults / limit);
+
+//   res.status(httpStatus.OK).json(
+//     response({
+//       message: "Transaction retrieved successfully",
+//       status: "OK",
+//       statusCode: httpStatus.OK,
+//       data: promotion,
+//       pagination: {
+//         page: page, // Current page
+//         limit: limit, // Items per page
+//         totalPages: totalPages, // Total number of pages
+//         totalResults: totalResults // Total number of results
+//       }
+//     })
+//   );
+// });
 
 
 
@@ -195,7 +197,7 @@ const totalStatus = catchAsync(async( req, res) => {
   const users = await User.countDocuments({role: "user"}) 
   const landLord = await User.countDocuments({role: "landlord"})
 
-  const totalEarnings = await Transaction.find({promotionStatus: "active"}, "amount");  
+  const totalEarnings = await paymentModel.find({status: "success"}, "amount");  
 
   // Calculate the total earnings
   const totalAmount = totalEarnings.reduce((acc, cur) => acc + cur.amount, 0);
@@ -258,7 +260,7 @@ const adminEarining =  catchAsync (async(  req, res) => {
   };
 
   // Get all subscriptions paid in the specified year
-  const earnings = await  Transaction.find({
+  const earnings = await  paymentModel.find({
     status: "success",
     createdAt: {
       $gte: new Date(`${year}-01-01`),
@@ -299,9 +301,6 @@ const adminEarining =  catchAsync (async(  req, res) => {
 
 
 module.exports = {
-  createPromotionPayment,
-  stripeWebhook,
-  getPromotionStatus,
   totalStatus,
   adminEarining
 };

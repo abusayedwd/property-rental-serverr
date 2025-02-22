@@ -358,7 +358,7 @@ const updatePropertyStatus = catchAsync(async (req, res) => {
   }, 5 * 60 * 1000); // 5 minutes delay
 
   res.status(httpStatus.OK).json({
-    message: "Property updated successfully and will be deleted in 5 minutes",
+    message: "Property updated successfully and will be removed from display in 5 minutes",
     status: "OK",
     statusCode: httpStatus.OK,
     data: property,
