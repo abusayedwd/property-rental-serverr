@@ -13,14 +13,15 @@ const register = catchAsync(async (req, res) => {
   const isUser = await userService.getUserByEmail(req.body.email);
 
   if (isUser && isUser.isEmailVerified === false) {
+    // throw new ApiError(httpStatus.BAD_REQUEST, "otp alredy send , please verify email")
     const user = await userService.isUpdateUser(isUser.id, req.body);
-    const tokens = await tokenService.generateAuthTokens(user);
+    const tokens = await tokenService.generateAuthTokens(user); 
     res.status(httpStatus.CREATED).json(
       response({
-        message: "Thank you for registering. Please verify your email",
+        message: "Thank you for registering. Please verify your email", 
         status: "OK",
         statusCode: httpStatus.CREATED,
-        data: {},
+        data: {}, 
       })
     );
   } else if (isUser && isUser.isDeleted === false) {
@@ -107,7 +108,7 @@ const login = catchAsync(async (req, res) => {
   }
 
   if (isUser?.isBlocked === true) {
-    throw new ApiError(httpStatus.FORBIDDEN, "User is blocked");
+    throw new ApiError(httpStatus.FORBIDDEN, "This is blocked Please contact admin");
   }
 
   const user = await authService.loginUserWithEmailAndPassword(email, password);
@@ -125,7 +126,7 @@ const login = catchAsync(async (req, res) => {
 
   const tokens = await tokenService.generateAuthTokens(user);
 
-  res.status(httpStatus.OK).json(
+  res.status(httpStatus.OK).json( 
     response({
       message: "Login Successful",
       status: "OK",

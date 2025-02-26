@@ -28,10 +28,10 @@ exports.initializePayment = async (req, res) => {
                 reference,
                 propertyId,
                 landlordId,
-                callback_url: `http://localhost:3004/myproperty?reference=${reference}`,
+                callback_url: `http://localhost:3004/myproperty?reference=${reference}`, 
             },
             {
-                headers: { Authorization: `Bearer ${PAYSTACK_SECRET_KEY}` },
+                headers: { Authorization: `Bearer ${PAYSTACK_SECRET_KEY}` }, 
             }
         );
 

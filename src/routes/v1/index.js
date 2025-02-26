@@ -8,6 +8,7 @@ const propertyRoute = require("./property.route");
 const chatingRoute = require("./chating.route");
 const messagesRoute = require("./message.route");
 const paymentRoute = require("./subscription.route");
+const bannerRoute = require("./benner.route");
 
 
 const router = express.Router();
@@ -40,7 +41,11 @@ const defaultRoutes = [
   {
     path: "/payment",
     route: paymentRoute,  
-  }
+  },
+  {
+    path: "/banner",
+    route: bannerRoute,  
+  },
   
  
 ];
