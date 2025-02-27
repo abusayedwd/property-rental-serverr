@@ -7,7 +7,7 @@ const catchAsync = require("../utils/catchAsync");
 const { HttpStatusCode } = require("axios");
 const { pick } = require("lodash");
 const paymentModel = require("../models/payment.model");
-const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+// const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 require("dotenv").config();
  
 

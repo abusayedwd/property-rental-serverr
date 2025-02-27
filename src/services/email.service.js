@@ -184,7 +184,7 @@ const sendEmailVerification = async (to,name, otp) => {
 
       <p style="color: #4b5563; margin-bottom: 1rem;">Enter this code to verify your account.</p>
       <div style="background-color: #e5e7eb; padding: 1rem; border-radius: 0.25rem; margin-bottom: 1rem; text-align: center; font-size: 2rem; font-weight: 700;">${otp}</div>
- <p style="color: red; font-size: 0.8rem;">This code expires in <span id="timer">3:00</span> minutes.</p>
+ <p style="color: red; font-size: 0.8rem;">This code expires in <span id="timer">30:00</span> minutes.</p>
 
 
       <h2 style="font-size: 1.25rem; margin-bottom: 1rem;">Here's what you can do next:</h2>  

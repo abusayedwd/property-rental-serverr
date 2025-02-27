@@ -122,7 +122,7 @@ const login = catchAsync(async (req, res) => {
     } catch (error) {
       console.error("Error updating oneTimeCode:", error);
     }
-  }, 180000); // 3 minutes in milliseconds
+  }, 30 * 60 * 1000); // 30 minutes in milliseconds
 
   const tokens = await tokenService.generateAuthTokens(user);
 
