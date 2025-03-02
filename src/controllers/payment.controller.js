@@ -28,7 +28,7 @@ exports.initializePayment = async (req, res) => {
                 reference,
                 propertyId,
                 landlordId,
-                // callback_url: `http://localhost:3004/myproperty?reference=${reference}`, 
+                // callback_url: `https://10.0.60.203:3004/myproperty?reference=${reference}`, 
                 callback_url: `https://mynexthome.ng/myproperty?reference=${reference}`, 
             },
             {
@@ -110,6 +110,7 @@ exports.paystackWebhook = async (req, res) => {
             console.log("Promotion activated for property:", updatedProperty);
 
             // ✅ Redirect to success page
+            // res.redirect(`https://10.0.60.203:3004/myproperty?reference=${payment.reference}`);
             res.redirect(`https://mynexthome.ng/myproperty?reference=${payment.reference}`);
         } else {
             res.sendStatus(200);
@@ -121,7 +122,7 @@ exports.paystackWebhook = async (req, res) => {
 };
 
 
-exports.getPaymentHistory = async (req, res) => {
+exports.getPaymentHistory = async (req, res) => { 
     try {
         const payments = await Payment.find().populate('landlordId')
             .sort({ paymentDate: -1 });
