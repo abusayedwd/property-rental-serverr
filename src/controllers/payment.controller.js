@@ -28,7 +28,7 @@ exports.initializePayment = async (req, res) => {
                 reference,
                 propertyId,
                 landlordId,
-                // callback_url: `https://10.0.60.203:3004/myproperty?reference=${reference}`, 
+                // callback_url: `http://localhost:3004/myproperty?reference=${reference}`, 
                 callback_url: `https://mynexthome.ng/myproperty?reference=${reference}`, 
             },
             {
@@ -80,49 +80,59 @@ exports.verifyPayment = async (req, res) => {
 // 🔄 Step 3: Handle Paystack Webhook
 exports.paystackWebhook = async (req, res) => {
     try {
-        const event = req.body;
-        console.log("Webhook Event Received:", event);
-
-        if (event.event === "charge.success") {
-            const payment = await Payment.findOne({ reference: event.data.reference });
-
-            if (!payment) {
-                console.log("Payment record not found for reference:", event.data.reference);
-                return res.status(404).json({ error: "Payment record not found" });
-            }
-
-            payment.status = "success";
-            payment.transactionId = event.data.id;
-            await payment.save();
-
-            const propertyId = payment.propertyId;
-            const updatedProperty = await Property.findByIdAndUpdate(
-                propertyId,
-                { isPromotion: true },
-                { new: true }
-            );
-
-            if (!updatedProperty) {
-                console.log("Property not found for ID:", propertyId);
-                return res.status(404).json({ error: "Property not found" });
-            }
-
-            console.log("Promotion activated for property:", updatedProperty);
-
-            // ✅ Redirect to success page
-            // res.redirect(`https://10.0.60.203:3004/myproperty?reference=${payment.reference}`);
-            res.redirect(`https://mynexthome.ng/myproperty?reference=${payment.reference}`);
-        } else {
-            res.sendStatus(200);
+      const event = req.body;
+      console.log("Webhook Event Received:", event);
+  
+      if (event.event === "charge.success") {
+        const reference = event.data.reference;
+        console.log("Processing successful payment for reference:", reference);
+        
+        const payment = await Payment.findOne({ reference: reference });
+        
+        if (!payment) {
+          console.log("Payment record not found for reference:", reference);
+          return res.status(200).json({ status: "Payment record not found" });
         }
+        
+        // Update payment status
+        payment.status = "success";
+        payment.transactionId = event.data.id;
+        await payment.save();
+        
+        console.log("Payment updated successfully:", payment);
+        
+        // Update property promotion status
+        const propertyId = payment.propertyId;
+        console.log("Attempting to update property:", propertyId);
+        
+        const updatedProperty = await Property.findByIdAndUpdate(
+          propertyId,
+          { isPromotion: true },
+          { new: true }
+        );
+        
+        if (!updatedProperty) {
+          console.log("Property not found for ID:", propertyId);
+          return res.status(200).json({ status: "Property not found, but payment recorded" });
+        }
+        
+        console.log("Promotion activated for property:", updatedProperty._id);
+        
+        // Return success status - webhooks should return a status, not redirect
+        return res.status(200).json({ status: "success" });
+      } 
+      
+      // For other webhook events
+      return res.status(200).json({ status: "received" });
+      
     } catch (error) {
-        console.error("Webhook error:", error);
-        res.sendStatus(500);
+      console.error("Webhook error:", error);
+      // Still return 200 to acknowledge receipt of webhook
+      return res.status(200).json({ status: "error", message: error.message });
     }
-};
+  };
 
-
-exports.getPaymentHistory = async (req, res) => { 
+exports.getPaymentHistory = async (req, res) => {
     try {
         const payments = await Payment.find().populate('landlordId')
             .sort({ paymentDate: -1 });
