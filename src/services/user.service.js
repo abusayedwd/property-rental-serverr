@@ -270,6 +270,23 @@ const isUpdateUser = async (userId, updateBody) => {
   return user;
 };
 
+const toggleUserBlockStatus = async (id) => {
+  // Find the user by ID
+  const user = await  User.findById(id);
+
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  // Toggle the isBlocked status
+  user.isBlocked = !user.isBlocked;
+
+  // Save the updated user
+  await user.save();
+
+  return user;
+};
+
 module.exports = {
   createUser,
   queryUsers,
@@ -278,5 +295,6 @@ module.exports = {
   updateUserById,
   deleteUserById,
   isUpdateUser,
-  logedUser
+  logedUser,
+  toggleUserBlockStatus
 };
