@@ -108,7 +108,7 @@ const login = catchAsync(async (req, res) => {
   }
 
   if (isUser?.isBlocked === true) {
-    throw new ApiError(httpStatus.FORBIDDEN, "This is blocked Please contact admin");
+    throw new ApiError(httpStatus.FORBIDDEN, "This Account is blocked Please contact admin");
   }
 
   const user = await authService.loginUserWithEmailAndPassword(email, password);
@@ -118,7 +118,7 @@ const login = catchAsync(async (req, res) => {
       user.oneTimeCode = null;
       user.isResetPassword = false;
       await user.save();
-      console.log("oneTimeCode reset to null after 3 minutes");
+      console.log("oneTimeCode reset to null after 30 minutes");
     } catch (error) {
       console.error("Error updating oneTimeCode:", error);
     }
@@ -219,7 +219,7 @@ const verifyEmail = catchAsync(async (req, res) => {
   const user = await authService.verifyEmail(req.body, req.query);
 
   const tokens = await tokenService.generateAuthTokens(user);
-
+  
   res.status(httpStatus.OK).json(
     response({
       message: "Email Verified",

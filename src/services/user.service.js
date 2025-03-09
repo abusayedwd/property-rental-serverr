@@ -287,7 +287,7 @@ const toggleUserBlockStatus = async (id) => {
   return user;
 };
 
-module.exports = {
+module.exports = { 
   createUser,
   queryUsers,
   getUserById,

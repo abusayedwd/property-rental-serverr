@@ -6,7 +6,7 @@ const Banner = require("../models/benner.model");
 const catchAsync = require("../utils/catchAsync");
 
 // ✅ Add Banner
-const addBanner = async (req, res) => {
+const addBanner = async (req, res) => { 
   try {
     if (!req.file) return res.status(400).json({ error: "Image is required" });
 
@@ -16,7 +16,7 @@ const addBanner = async (req, res) => {
       path: req.file.path,
     };
 
-    const banner = new Banner({  image });
+    const banner = new Banner({  image, link: req.body.link, });
     await banner.save();
 
     res.status(201).json({ message: "Banner added successfully", banner , code: 200 });

@@ -154,25 +154,25 @@ const sendEmail = async (to, subject, html) => {
   await transport.sendMail(msg);
 };
 
-// const sendEmailVerification = async (to, otp) => {
-//   console.log("sendEmailVerification", to, otp);
-//   const subject = "User verification code";
-//   const html = `
-
-//   <body style="background-color: #f3f4f6; padding: 1rem; font-family: Arial, sans-serif;">
-//     <div style="max-width: 24rem; margin: 0 auto; background-color: #fff; padding: 1.5rem; border-radius: 0.5rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-//       <h1 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem;">Welcome to Spotlyt Task App</h1>
-//       <p style="color: #4b5563; margin-bottom: 1rem;">Thank you for joining Spotlyt Task App. Your account is almost ready!</p>
-//       <div style="background-color: #e5e7eb; padding: 1rem; border-radius: 0.25rem; text-align: center; font-size: 2rem; font-weight: 700; margin-bottom: 1rem;">${otp}</div>
-//       <p style="color: #4b5563; margin-bottom: 1rem;">Enter this code to verify your account.</p>
-//       <p style="color: red; font-size: 0.8rem; margin-top: 1rem;">This code expires in <span id="timer">3:00</span> minutes.</p>
-//     </div>
-// </body>
-// `;
-//   await sendEmail(to, subject, html);
-// };
-
 const sendEmailVerification = async (to,name, otp) => {
+  console.log("sendEmailVerification", to, otp);
+  const subject = "User verification code";
+  const html = `
+
+  <body style="background-color: #f3f4f6; padding: 1rem; font-family: Arial, sans-serif;">
+    <div style="max-width: 24rem; margin: 0 auto; background-color: #fff; padding: 1.5rem; border-radius: 0.5rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+      <h1 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem;">Welcome to mynexthome.ng</h1>
+      <p style="color: #4b5563; margin-bottom: 1rem;">Thank you for joining Welcome to mynexthome.ng . Your account is almost ready!</p>
+      <div style="background-color: #e5e7eb; padding: 1rem; border-radius: 0.25rem; text-align: center; font-size: 2rem; font-weight: 700; margin-bottom: 1rem;">${otp}</div>
+      <p style="color: #4b5563; margin-bottom: 1rem;">Enter this code to verify your account.</p>
+      <p style="color: red; font-size: 0.8rem; margin-top: 1rem;">This code expires in <span id="timer">3:00</span> minutes.</p>
+    </div>
+</body>
+`;
+  await sendEmail(to, subject, html);
+};
+
+const sendEmailBody = async (to,name, otp) => {
   console.log("sendEmailVerification",to, otp);
   const subject = "Welcome to mynexthome.ng";
   const html = `
@@ -180,12 +180,7 @@ const sendEmailVerification = async (to,name, otp) => {
     <div style="max-width: 24rem; margin: 0 auto; background-color: #fff; padding: 1.5rem; border-radius: 0.5rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
      <h1 style="font-size: 2rem; font-weight: 600; margin-bottom: 1rem;">Dear ${name}</h1>
       <h1 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem;">Welcome to mynexthome.ng!</h1>
-      <p style="color: #4b5563; margin-bottom: 1rem;">We're excited to have you join our community.</p>
-
-      <p style="color: #4b5563; margin-bottom: 1rem;">Enter this code to verify your account.</p>
-      <div style="background-color: #e5e7eb; padding: 1rem; border-radius: 0.25rem; margin-bottom: 1rem; text-align: center; font-size: 2rem; font-weight: 700;">${otp}</div>
- <p style="color: red; font-size: 0.8rem;">This code expires in <span id="timer">30:00</span> minutes.</p>
-
+      <p style="color: #4b5563; margin-bottom: 1rem;">We're excited to have you join our community.</p> 
 
       <h2 style="font-size: 1.25rem; margin-bottom: 1rem;">Here's what you can do next:</h2>  
 
@@ -255,4 +250,5 @@ module.exports = {
   sendResetPasswordEmail,
   sendVerificationEmail,
   sendEmailVerification,
+  sendEmailBody
 };
