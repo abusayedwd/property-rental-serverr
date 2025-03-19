@@ -9,6 +9,7 @@ const chatingRoute = require("./chating.route");
 const messagesRoute = require("./message.route");
 const paymentRoute = require("./subscription.route");
 const bannerRoute = require("./benner.route");
+const csvfileUpload = require("./csvfile.route");
 
 
 const router = express.Router();
@@ -45,6 +46,10 @@ const defaultRoutes = [
   {
     path: "/banner",
     route: bannerRoute,  
+  }, 
+  {
+    path: "/csv",
+    route: csvfileUpload,  
   },
   
  

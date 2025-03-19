@@ -2,6 +2,8 @@ const httpStatus = require("http-status");
 const {messageService} = require("../services");
 const catchAsync = require("../utils/catchAsync");
 const response = require("../config/response");
+const { Messages } = require("../models");
+ 
 
  const sendMessage = catchAsync(async(req, res) => {
   
@@ -11,7 +13,7 @@ const response = require("../config/response");
     const message = await messageService.sendMessage(sender, receiver, text);
     res.status(httpStatus.CREATED).json(
       response({
-        message : "Chat created successfully" ,
+        message : "message send successfully" ,
         status: "OK",
         statusCode: httpStatus.CREATED,
         data: message,
@@ -30,7 +32,7 @@ const response = require("../config/response");
           status: "OK",
           statusCode: httpStatus.OK,
           data: messages,
-      })
+      })  
   );
  
 })
@@ -51,9 +53,11 @@ const response = require("../config/response");
     res.status(200).json({ message: "Message deleted successfully" });
    
 })
+ 
 
 module.exports = { sendMessage, 
   getMessages, 
   updateMessage, 
-  deleteMessage 
+  deleteMessage ,
+ 
 };

@@ -24,26 +24,27 @@ mongoose.connect(config.mongoose.url, config.mongoose.options).then(() => {
   // });
   
 
-  const io = new Server(server, {
+  const io = require("socket.io")(server, {
     cors: {
-      origin: "http://localhost:3004/", // Replace with your frontend URL
-      methods: ["GET", "POST"],
-    }, 
+      origin: "*", // In production, specify your client domain
+      methods: ["GET", "POST"]
+    }
   });
   
   
-  socketIO(io);
+  socketIO(io);  
   
   global.io = io;
+
   server.listen(config.port, process.env.BACKEND_IP, () => { 
-    logger.info(`Socket IO listening to port ${config.port}`);
+    logger.info(`Socket IO listening to port ${config.port}`);    
   }); 
 
 
 });  
 
 
-
+ 
 const exitHandler = () => { 
   if (server) {
     server.close(() => {

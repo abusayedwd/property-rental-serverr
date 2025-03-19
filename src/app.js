@@ -39,6 +39,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 bodyParser.raw({ type: "application/json" });
 
+ 
+
+
 // set security HTTP headers
 app.use(helmet());
 
@@ -97,4 +100,4 @@ app.use(errorConverter);
 // handle error
 app.use(errorHandler);
 
-module.exports = app; 
+module.exports = app;  

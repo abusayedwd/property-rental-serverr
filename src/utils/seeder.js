@@ -14,7 +14,7 @@ const usersData = [
   },
   {
     fullName: "Testing user",
-    email: "user@gmail.com",
+    email: "user@gmail.com", 
     phoneNumber: "01735566789",
     password: "$2a$08$FNo23A8cpyqJgmSulyYAZu7QHuRmXOV0WmB85.p9bcVXuAQTD/ani",
     role: "user",

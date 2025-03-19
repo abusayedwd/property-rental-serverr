@@ -115,14 +115,14 @@ const login = catchAsync(async (req, res) => {
 
   setTimeout(async () => {
     try {
-      user.oneTimeCode = null;
+      user.oneTimeCode = null; 
       user.isResetPassword = false;
       await user.save();
       console.log("oneTimeCode reset to null after 30 minutes");
     } catch (error) {
       console.error("Error updating oneTimeCode:", error);
     }
-  }, 30 * 60 * 1000); // 30 minutes in milliseconds
+  }, 30 * 60 * 1000); // 30 minutes in milliseconds 
 
   const tokens = await tokenService.generateAuthTokens(user);
 

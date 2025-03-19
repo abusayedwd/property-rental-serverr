@@ -28,29 +28,74 @@
 
 // module.exports = socketIO;
 
+// const logger = require("../config/logger");
+
+// const socketIO = (io) => {
+//   io.on("connection", (socket) => {
+//     console.log(`User connecteddd: ${socket.id}`); 
+
+
+//     socket.on("client_connect", (data) => {
+//       console.log("hello data from client",data) 
+//     })  
+
+   
+//     socket.on("user_connected", (userId) => {       
+//       console.log(`User ${userId} is online`); 
+//       socket.join(userId); // Join the user to their own room
+//     });
+  
+//     socket.on("join_chat", (chatId) => {   
+//       console.log(`User joined chat: ${chatId}`);  
+//       socket.join(chatId);   
+
+//     });   
+  
+//     socket.on("send_message", (data) => {
+//       console.log("New message receiveddd:", data); 
+//       // Broadcast to everyone in the chat room including sender 
+//       console.log("texteee",data.message)
+//       io.to(data.chatId).emit("receive_message", data.message);           
+//     });  
+    
+//     socket.on("disconnect", () => {     
+//       console.log("User disconnected");                
+//     });        
+//   });
+// };
+
+// module.exports = socketIO;
+
+
 const logger = require("../config/logger");
+
 const socketIO = (io) => {
   io.on("connection", (socket) => {
     console.log(`User connected: ${socket.id}`);
-  
+
+    socket.on("client_connect", (data) => {
+      console.log("hello data from client", data);
+    });
+
     socket.on("user_connected", (userId) => {
       console.log(`User ${userId} is online`);
       socket.join(userId); // Join the user to their own room
     });
-  
+
     socket.on("join_chat", (chatId) => {
       console.log(`User joined chat: ${chatId}`);
       socket.join(chatId);
-    });   
-  
-    socket.on("send_message", (data) => {
-      console.log("New message received:", data); 
-      io.to(data.chatId).emit("receive_message", data.message);
     });
-  
+
+    socket.on("send_message", (data) => { 
+      console.log("New message received:", data);
+      const eventName = `messages::${data.chatId}`;
+      io.to(data.chatId).emit(eventName, data.message);
+    });
+
     socket.on("disconnect", () => {
-      console.log("User disconnected");   
-    });
+      console.log("User disconnected"); 
+    }); 
   });
 };
 

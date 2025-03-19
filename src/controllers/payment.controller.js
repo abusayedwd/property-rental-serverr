@@ -28,8 +28,8 @@ exports.initializePayment = async (req, res) => {
                 reference,
                 propertyId,
                 landlordId,
-                // callback_url: `http://localhost:3004/myproperty?reference=${reference}`, 
-                callback_url: `https://mynexthome.ng/myproperty?reference=${reference}`, 
+                callback_url: `http://10.0.60.203:3004/myproperty`, 
+                // callback_url: `https://mynexthome.ng/myproperty`, 
             },
             {
                 headers: { Authorization: `Bearer ${PAYSTACK_SECRET_KEY}` }, 

@@ -18,9 +18,9 @@ const {chatService} = require("../services");
   io.emit(envetName, message);  
 
   return message;
-}
+} 
  
- const getMessages = async(chatId) => {
+ const getMessages = async(chatId) => { 
   return await Messages.find({ chatId }) 
     .populate({
       path: "sender",

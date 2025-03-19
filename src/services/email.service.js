@@ -162,10 +162,10 @@ const sendEmailVerification = async (to,name, otp) => {
   <body style="background-color: #f3f4f6; padding: 1rem; font-family: Arial, sans-serif;">
     <div style="max-width: 24rem; margin: 0 auto; background-color: #fff; padding: 1.5rem; border-radius: 0.5rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
       <h1 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem;">Welcome to mynexthome.ng</h1>
-      <p style="color: #4b5563; margin-bottom: 1rem;">Thank you for joining Welcome to mynexthome.ng . Your account is almost ready!</p>
+      <p style="color: #4b5563; margin-bottom: 1rem;"> Your account is almost ready!</p>
       <div style="background-color: #e5e7eb; padding: 1rem; border-radius: 0.25rem; text-align: center; font-size: 2rem; font-weight: 700; margin-bottom: 1rem;">${otp}</div>
       <p style="color: #4b5563; margin-bottom: 1rem;">Enter this code to verify your account.</p>
-      <p style="color: red; font-size: 0.8rem; margin-top: 1rem;">This code expires in <span id="timer">3:00</span> minutes.</p>
+      <p style="color: red; font-size: 0.8rem; margin-top: 1rem;">This code expires in <span id="timer">30:00</span> minutes.</p>
     </div>
 </body>
 `;

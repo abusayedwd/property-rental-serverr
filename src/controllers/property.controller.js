@@ -348,25 +348,25 @@ const updatePropertyStatus = catchAsync(async (req, res) => {
   }
 
   // Update propertyType
-  property.propertyType = propertyType;
+  property.propertyType = propertyType; 
   await property.save();
 
   // Schedule deletion after 5 minutes
   setTimeout(async () => {
     await Property.findByIdAndDelete(id);
-    console.log(`Property with ID ${id} deleted after 5 minutes.`);
-  }, 5 * 60 * 1000); // 5 minutes delay
+    console.log(`Property with ID ${id} deleted after 1 week.`);
+  }, 7 * 24 * 60 * 60 * 1000); // 5 minutes delay
 
   res.status(httpStatus.OK).json({
     message: "Property updated successfully and will be removed from display in 5 minutes",
-    status: "OK",
+    status: "OK", 
     statusCode: httpStatus.OK,
-    data: property,
+    data: property, 
   });
-});
+}); 
 
 
-// Delete Property
+// Delete Property 
 const deleteProperty =  catchAsync(async(req, res) => {
  
     const property = await propertyService.deleteProperty(req.params.id);
@@ -375,12 +375,12 @@ const deleteProperty =  catchAsync(async(req, res) => {
     }  
     res.status(200).json(
       { message: "Property deleted successfully",
-        code: 200 
-      } );
-   
+        code: 200   
+      } ); 
+    
 });
 
-module.exports = {
+module.exports = { 
      createProperty,
      getAllProperties,
      getPropertyById,
