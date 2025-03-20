@@ -15,13 +15,13 @@ const bannerRoute = require("./benner.route");
 const router = express.Router();
 
 const defaultRoutes = [
-  {
+  { 
     path: "/auth",
     route: authRoute,
   },
   {
     path: "/users",
-    route: userRoute,
+    route: userRoute, 
   },
   {
     path: "/information",
