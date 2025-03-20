@@ -35,7 +35,7 @@ const {chatService} = require("../services");
 }
 
  const deleteMessage = async(messageId) => {
-  return await Messages.findByIdAndDelete(messageId);  
+  return await Messages.findByIdAndDelete(messageId);   
 }
 
 module.exports = { 
