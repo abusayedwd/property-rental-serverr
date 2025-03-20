@@ -28,7 +28,7 @@ exports.initializePayment = async (req, res) => {
                 reference,
                 propertyId,
                 landlordId,
-                // callback_url: `http://10.0.60.203:3004/myproperty`, 
+                // callback_url: `http://10.0.80.210:3004/myproperty`, 
                 callback_url: `https://mynexthome.ng/myproperty`, 
             },
             {
