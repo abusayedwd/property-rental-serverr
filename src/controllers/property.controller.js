@@ -389,6 +389,7 @@ module.exports = {
      getPromotedARentProperties,
      updateProperty,
      deleteProperty ,
-     getPromotedProperties,
+     getPromotedProperties,  
      updatePropertyStatus
-    };
+    };   
+  

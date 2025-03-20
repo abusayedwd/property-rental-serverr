@@ -24,9 +24,9 @@ const {chatService} = require("../services");
   return await Messages.find({ chatId }) 
     .populate({
       path: "sender",
-      select: "fullName image role email",
+      select: "fullName image role email", 
     })
-    
+     
 }
 
 
@@ -35,7 +35,7 @@ const {chatService} = require("../services");
 }
 
  const deleteMessage = async(messageId) => {
-  return await Messages.findByIdAndDelete(messageId);
+  return await Messages.findByIdAndDelete(messageId);  
 }
 
 module.exports = { 
