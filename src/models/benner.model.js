@@ -6,7 +6,7 @@ const BannerSchema = new mongoose.Schema({
     url: { type: String, required: true },
     path: { type: String, required: true },
   },
-  link: { type: String, required: true
+  link: { type: String,  
   },
   createdAt: { type: Date, default: Date.now },
 });

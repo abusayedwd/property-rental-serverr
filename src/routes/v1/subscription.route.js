@@ -20,16 +20,18 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../../middlewares/auth');
-const {totalStatus, adminEarining } = require('../../controllers/transaction.controller');
+const {totalStatus, adminEarining, stripeWebhook, createPromotionPayment, getPromotionStatus } = require('../../controllers/transaction.controller');
 const bodyParser = require("body-parser");
 // const { initializePayment, verifyPayment, paystackWebhook, getPaymentHistory } = require('../../controllers/payment.controller');
-const { createPromotionPayment, stripeWebhook, getPromotionStatus } = require('../../controllers/transaction.controller');
+
 // Webhook route to handle payment success
-router.post('/stripe-webhook', bodyParser.raw({ type: "application/json" }), stripeWebhook);
-router.get("/getPaymentHistory", auth('common'), getPromotionStatus);
-// Other routes
 router.post('/pay', auth('landlord'), createPromotionPayment);
-// router.get('/getPromotionPayment', auth('common'), getPromotionStatus);
+
+router.post('/webhook', bodyParser.raw({ type: "application/json" }), stripeWebhook);
+
+// Other routes
+router.get('/getPaymentHistory', auth('common'), getPromotionStatus);
+
 router.get('/totalStatus', auth('common'), totalStatus);
 router.get('/monthlyEarning', auth('admin'), adminEarining);
 

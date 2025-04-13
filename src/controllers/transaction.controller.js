@@ -30,7 +30,7 @@ const createPromotionPayment = catchAsync (async(  req, res) => {
     ];
 
     // Price is $2 (in cents, so 2 * 100 = 200 cents)
-    const amount = 2; 
+    const amount = 29; 
 
     // Create the Stripe Checkout session for payment of $2
     const session = await stripe.checkout.sessions.create({
@@ -126,7 +126,7 @@ const stripeWebhook = async (req, res) => {
           transactionId: session.payment_intent, // Fields to update
           promotionStatus: 'active'
         }, 
-        { new: true } // Options
+        { new: true }
       );
 
       console.log('Transaction promotion status updated:', updatedPromotion);
