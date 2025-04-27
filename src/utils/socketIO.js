@@ -83,7 +83,7 @@ const socketIO = (io) => {
     });
 
     socket.on("join_chat", (chatId) => {
-      console.log(`User joined chat: ${chatId}`);
+      console.log(`User joined chat: ${chatId}`); 
       socket.join(chatId);
     });
 

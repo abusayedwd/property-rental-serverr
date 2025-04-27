@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
  
 
 const transactionSchema = new mongoose.Schema(
+ 
   {
     landlordId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     propertyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Booking', required: false },
@@ -22,5 +23,6 @@ const transactionSchema = new mongoose.Schema(
 );
  
 
-const Transaction = mongoose.model('Transaction', transactionSchema);
-module.exports = Transaction;
+module.exports = mongoose.model('Transaction', transactionSchema);
+
+ 

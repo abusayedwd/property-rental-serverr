@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
-const PaymentSchema = new mongoose.Schema({
+const PaymentSchema = new mongoose.Schema(
+    {
     landlordId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     propertyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Property', required: false },
     email: { type: String, required: true },
@@ -9,6 +10,7 @@ const PaymentSchema = new mongoose.Schema({
     status: { type: String, default: "pending" }, // pending, success, failed
     reference: { type: String, unique: true },
     transactionId: { type: String },
-}, { timestamps: true });
+}, 
+{ timestamps: true });
 
 module.exports = mongoose.model("Payment", PaymentSchema);

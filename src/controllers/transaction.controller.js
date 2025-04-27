@@ -1,4 +1,4 @@
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const stripe = require("stripe")(process.env.STRIPE_PRIVATE_KEY);
 const httpStatus = require("http-status");
 const response = require("../config/response");
 const { Property, User } = require("../models");
@@ -7,7 +7,7 @@ const catchAsync = require("../utils/catchAsync");
 const { HttpStatusCode } = require("axios");
 const { pick } = require("lodash");
 const paymentModel = require("../models/payment.model");
-// const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 require("dotenv").config();
  
 
@@ -30,7 +30,7 @@ const createPromotionPayment = catchAsync (async(  req, res) => {
     ];
 
     // Price is $2 (in cents, so 2 * 100 = 200 cents)
-    const amount = 29; 
+    const amount = 2; 
 
     // Create the Stripe Checkout session for payment of $2
     const session = await stripe.checkout.sessions.create({
@@ -46,7 +46,9 @@ const createPromotionPayment = catchAsync (async(  req, res) => {
         quantity: item.quantity,
       })),
       mode: "payment",
-      success_url: "http://10.0.80.210:3004/",
+      // success_url: "https://meek-daffodil-4c1a5f.netlify.app",
+      // cancel_url: "https://meek-daffodil-4c1a5f.netlify.app",
+      success_url: "http://10.0.80.210:3004/myproperty",
       cancel_url: "http://10.0.80.210:3004/",
       customer_email: req.user.email, // Assuming the user's email is available in req.user
       metadata: {
@@ -126,7 +128,7 @@ const stripeWebhook = async (req, res) => {
           transactionId: session.payment_intent, // Fields to update
           promotionStatus: 'active'
         }, 
-        { new: true }
+        { new: true } // Options
       );
 
       console.log('Transaction promotion status updated:', updatedPromotion);
@@ -138,7 +140,7 @@ const stripeWebhook = async (req, res) => {
     res.status(500).json({ error: 'Webhook error' });
   }
 };
-
+ 
 
 const getPromotionStatus = catchAsync(async (req, res) => {
   const filter = pick(req.query, ["fullName", "role", "email"]);
@@ -187,6 +189,26 @@ const getPromotionStatus = catchAsync(async (req, res) => {
     })
   );
 });
+
+
+ const getPaymentHistory = async (req, res) => {
+    try {
+        const payments = await Transaction.find().populate('landlordId')
+            .sort({ paymentDate: -1 });
+            res.status(httpStatus.OK).json(
+                response({
+                  message: "PaymentHistory retrieved successfully",
+                  status: "OK",
+                  statusCode: httpStatus.OK,
+                  data: payments, 
+                })
+              );
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to fetch payment history' });
+    }
+};
 
 
 
@@ -305,5 +327,6 @@ module.exports = {
   adminEarining,
   createPromotionPayment,
   getPromotionStatus,
-  stripeWebhook
+  stripeWebhook,
+  getPaymentHistory
 };
