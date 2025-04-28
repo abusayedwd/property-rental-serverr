@@ -6,7 +6,8 @@ const Transaction = require("../models/transaction.model");
 const catchAsync = require("../utils/catchAsync");
 const { HttpStatusCode } = require("axios");
 const { pick } = require("lodash");
-const paymentModel = require("../models/payment.model");
+const transactionModel = require("../models/transaction.model");
+ 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 require("dotenv").config();
  
@@ -193,7 +194,7 @@ const getPromotionStatus = catchAsync(async (req, res) => {
 
  const getPaymentHistory = async (req, res) => {
     try {
-        const payments = await Transaction.find().populate('landlordId')
+        const payments = await transactionModel.find().populate('landlordId')
             .sort({ paymentDate: -1 });
             res.status(httpStatus.OK).json(
                 response({
@@ -219,7 +220,7 @@ const totalStatus = catchAsync(async( req, res) => {
   const users = await User.countDocuments({role: "user"}) 
   const landLord = await User.countDocuments({role: "landlord"})
 
-  const totalEarnings = await paymentModel.find({status: "success"}, "amount");  
+  const totalEarnings = await transactionModel.find({status: "success"}, "amount");  
 
   // Calculate the total earnings
   const totalAmount = totalEarnings.reduce((acc, cur) => acc + cur.amount, 0);
@@ -282,7 +283,7 @@ const adminEarining =  catchAsync (async(  req, res) => {
   };
 
   // Get all subscriptions paid in the specified year
-  const earnings = await  paymentModel.find({
+  const earnings = await  transactionModel.find({
     status: "success",
     createdAt: {
       $gte: new Date(`${year}-01-01`),
