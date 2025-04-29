@@ -34,7 +34,7 @@ router
   .get( propertyController.getPropertyById)
   .patch(
     auth("landlord"),
-    [uploadUsers.single("image")],
+    [uploadUsers.array("images", 5)],
     convertHeicToPngMiddleware(UPLOADS_FOLDER_USERS),
     propertyController.updateProperty 
   )

@@ -159,7 +159,7 @@ const getPropertyById = async (id) => {
 // Update Property
 const updateProperty = async (id, data) => {
   console.log("tess resss:87",data)
-  return await Property.findByIdAndUpdate(id, data, { new: true });
+  return await Property.findByIdAndUpdate(id, data, { new: true, runValidators: true });
 };
 
 // Delete Property

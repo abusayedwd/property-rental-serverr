@@ -285,32 +285,74 @@ const getPropertyById =  catchAsync(async( req, res) => {
 });
 
 // Update Property
-const updateProperty =  catchAsync (async(  req, res) => {
+// const updateProperty =  catchAsync (async(  req, res) => {
  
-  const image = {};
-  if (req.file) {
-    image.url = "/uploads/property/" + req.file.filename;
-    image.path = req.file.path;
-  }
-  if (req.file) {
-    req.body.image = image;
+//   const image = {};
+//   if (req.file) {
+//     image.url = "/uploads/property/" + req.file.filename;
+//     image.path = req.file.path;
+//   }
+//   if (req.file) {
+//     req.body.image = image;
+//   }
+
+//     const property = await propertyService.updateProperty(req.params.id, req.body);
+//     if (!property){
+//       throw new ApiError({ message: "Property not found" })
+//     } 
+
+//     res.status(httpStatus.OK).json(
+//       response({
+//         message: "Updated successfully",
+//         status: "OK",
+//         statusCode: httpStatus.OK,
+//         data: property,
+//       })
+//     );
+ 
+// });
+
+const updateProperty = catchAsync(async (req, res) => {
+  const propertyId = req.params.id;
+  
+  // Handle images (allow multiple images for update)
+  let images = [];
+  if (req.files && req.files.length >= 1 && req.files.length <= 5) {
+    req.files.forEach(file => {
+      images.push({
+        url: "/uploads/property/" + file.filename,
+        path: file.path,
+      });
+    });
+  } else if (req.files && req.files.length > 5) {
+    return res.status(400).json({
+      message: "You must upload between 1 and 5 images.",
+    });
   }
 
-    const property = await propertyService.updateProperty(req.params.id, req.body);
-    if (!property){
-      throw new ApiError({ message: "Property not found" })
-    } 
+  // Prepare data to update
+  const updatedData = { ...req.body }; // Keep the current data intact
+  if (images.length > 0) {
+    updatedData.images = images; // Add images to updated data if they exist
+  }
 
-    res.status(httpStatus.OK).json(
-      response({
-        message: "Updated successfully",
-        status: "OK",
-        statusCode: httpStatus.OK,
-        data: property,
-      })
-    );
- 
+  // Update the property in the database
+  const property = await propertyService.updateProperty(propertyId, updatedData);
+  if (!property) {
+    throw new ApiError({ message: "Property not found" });
+  }
+
+  // Return the updated property data
+  res.status(httpStatus.OK).json(
+    response({
+      message: "Updated successfully",
+      status: "OK",
+      statusCode: httpStatus.OK,
+      data: property,
+    })
+  );
 });
+
 
 
 //status updateed //
